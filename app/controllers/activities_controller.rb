@@ -4,25 +4,35 @@ class ActivitiesController < ApplicationController
 
     def index
         # listar as atividades (variável activities)
-
+        @activities = Activity.order(:due_date)
         # criar uma atividade (variável activity)
+        @activity = Activity.new
     end
     
     def create
         #Crie uma atividade aqui
+        @activity = Activity.new(activity_params)
 
-        #Envie uma mensagem com flash[:msg] contendo o alerta
+        if @activity.save
+          redirect_to activities_index_url
+          #Envie uma mensagem com flash[:msg] contendo o alerta
+          flash[:msg] = "Atividade criada."
+        else
+          render :new
+        end
 
-        write_alert_on_log
-        redirect_to activities_index_url
+        
+       
     end
 
     def destroy
         #Destrua uma atividade por id
+        @activity = Activity.find(params[:id])
+        @activity.destroy
 
         #Envie uma mensagem com flash[:msg] contendo o alerta
-
-        write_alert_on_log
+        flash[:msg] = "Atividade excluída com sucesso."
+        
         redirect_to activities_index_url
     end
 
@@ -30,12 +40,8 @@ class ActivitiesController < ApplicationController
 
     def activity_params
         #Defina os parâmetros de cada atividade em params
+        params.require(:activity).permit(:name, :date, :description)
     end
 
-    def write_alert_on_log
-        #Apenas para debug, ignorem isso
-        Rails.logger.debug "--------------------------------------"
-        Rails.logger.debug "Mensagem de alerta: " + @alert
-        Rails.logger.debug "--------------------------------------"
-    end
+    
 end
